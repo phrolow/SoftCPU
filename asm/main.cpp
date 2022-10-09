@@ -1,7 +1,7 @@
 #include "asm.h"
 
 int main(int argc, char *argv[]) {
-    char *code = NULL;
+    struct Code code = { NULL, 0 };
     struct text prog = { NULL, NULL, 0, 0, 0 };
 
     if(argc < 3) {
@@ -30,9 +30,9 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    assemble(code, argv[2]);
+    assemble(&code, argv[2]);
 
-    printf("Alright, yeah");
+    printf("Alright, yeah!");
     
     return 0;
 }
