@@ -11,7 +11,7 @@
 
 #include "Y:\\CodeBlocks\\MinGW\\include\\TXLib.h"
 
-#define HERE printf("here");
+//#define HERE printf("here");
 
 struct text {
     char *content;

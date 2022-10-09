@@ -1,0 +1,8 @@
+Stack StackNew_(const char*, const char*, const char*, size_t) at Y:\gthb\SoftCPU\cpu/stack.cpp(38)
+Stack[000000fe6adffd60] (ok) at int main(int, char**) at Y:\gthb\SoftCPU\cpu/main.cpp(15) {
+	Size = 0
+	capacity = 1
+	data[00007ff63f56221c] {
+		*[0] =  (POISON)
+	}
+}
