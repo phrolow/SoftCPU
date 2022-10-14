@@ -5,10 +5,11 @@
 #include <assert.h>
 #include <math.h>
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 #include <string.h>
 
-//#include <TXLib.h>
+#define ANTON printf("anton");
 
 #ifdef CANARY_PROT
 #define ON_CANARY_PROT(...) __VA_ARGS__
@@ -41,7 +42,13 @@
 
 #define StackNew(stk) StackNew_(#stk + (#stk[0] == '&'), LOCATION)
 
-typedef char Elem_t;
+typedef int Elem_t;
+typedef long long unsigned canary_t;
+
+struct Code {
+    char* bin;
+    size_t size;
+};
 
 struct StackInfo {
     const char* name;
@@ -51,14 +58,25 @@ struct StackInfo {
 };
 
 struct Stack {
-    ON_CANARY_PROT(long double canary0);
+    ON_CANARY_PROT(canary_t canary0);
     Elem_t* data;
     size_t Size;
     size_t capacity;
     struct StackInfo info;
     long datahash;
     long stackhash;
-    ON_CANARY_PROT(long double canary1);
+    ON_CANARY_PROT(canary_t canary1);
+};
+
+enum COMMAND {
+    HLT_CMD,
+    PUSH_CMD,
+    ADD_CMD,
+    SUB_CMD,
+    MUL_CMD,
+    DIV_CMD,
+    OUT_CMD,
+    IN_CMD
 };
 
 enum StackError {
@@ -77,13 +95,14 @@ enum CpuError {
     INVALID_SIGNATURE,
     INVALID_SIZE,
     INVALID_COMMAND
-}
+};
 
-const Elem_t POISON = 7;
+const Elem_t POISON = 999999;
 const size_t BIG_UNS = 1000000;
 const size_t START_CAPACITY = 1;
 const char* const ElemFormat = "%c";
 const char* const LOGPATH = "log.txt";
+const char VERSION = 2;
 
 struct Stack StackNew_(const char* name, const char* func, const char* file, size_t line);
 
@@ -114,5 +133,11 @@ int binary(int n);
 long hash(void* p, size_t size);
 
 int checkdatacanaries(struct Stack *stk);
+
+int execute(struct Code *code, struct Stack *stk);
+
+void handle(int err);
+
+int getCode(struct Code **code, const char *path);
 
 #endif // STACK_H_INCLUDED

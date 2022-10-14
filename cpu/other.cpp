@@ -1,4 +1,4 @@
-#include "stack.h"
+#include "cpu.h"
 
 int binary(int n) {
     int res = 0, ten = 1;
@@ -7,6 +7,8 @@ int binary(int n) {
         res += n % 2 * ten;
         
         ten *= 10;
+
+        n /= 2;
     }
 
     return res;

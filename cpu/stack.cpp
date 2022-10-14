@@ -1,12 +1,12 @@
-#include "stack.h"
+#include "cpu.h"
 
 struct Stack StackNew_(const char* name, const char* func, const char* file, size_t line) {
     struct StackInfo info = { NULL, NULL, NULL, 0 };
-    struct Stack stk = { NAN, NULL, 0, 0, info, 0, 0, NAN };
-    long double datacanary = NAN;
+    struct Stack stk = { 0, NULL, 0, 0, info, 0, 0, 0 };
+    canary_t datacanary = 0;
 
     stk.capacity = START_CAPACITY;
-    stk.data = (Elem_t*)calloc(ON_CANARY_PROT(2 * sizeof(datacanary) / sizeof(Elem_t)) + stk.capacity, sizeof(char)); 
+    stk.data = (Elem_t*)calloc(ON_CANARY_PROT(2 * sizeof(datacanary) / sizeof(Elem_t)) + stk.capacity, sizeof(Elem_t)); 
     stk.Size = 0;
 
     info.name = name;
@@ -22,11 +22,11 @@ struct Stack StackNew_(const char* name, const char* func, const char* file, siz
 
     datacanary = rand() ^ ((size_t) stk.data + 1) ^ 0xDEADF00D;
 
-    *((long double *) (stk.data)) = datacanary;
+    *((canary_t *) (stk.data)) = datacanary;
 
     stk.data += sizeof(datacanary) / sizeof(Elem_t);
 
-    *((long double *) (stk.data + stk.capacity)) = datacanary;
+    *((canary_t *) (stk.data + stk.capacity)) = datacanary;
 
     #endif
 
@@ -70,14 +70,14 @@ Elem_t StackPop(struct Stack *stk) {
 void StackResize(struct Stack *stk, size_t newCapacity) {
     ASSERT_OK(stk);
 
-    stk->data = (Elem_t*)recalloc(stk->data ON_CANARY_PROT(- sizeof(long double) / sizeof(Elem_t)), newCapacity ON_CANARY_PROT(+ 2 * sizeof(long double) / sizeof(Elem_t)), sizeof(Elem_t));
-    stk->data += sizeof(long double) / sizeof(Elem_t);
+    stk->data = (Elem_t*)recalloc(stk->data ON_CANARY_PROT(- sizeof(canary_t) / sizeof(Elem_t)), newCapacity ON_CANARY_PROT(+ 2 * sizeof(canary_t) / sizeof(Elem_t)), sizeof(Elem_t));
+    ON_CANARY_PROT(stk->data += sizeof(canary_t) / sizeof(Elem_t));
     
-    for(size_t i = 0; i < sizeof(long double) / sizeof(Elem_t); i++) {
+    for(size_t i = 0; i < sizeof(canary_t) / sizeof(Elem_t); i++) {
         *(stk->data + stk->capacity + i) = POISON;
     }
     
-    *((long double *) (stk->data + newCapacity)) = *((long double *) (stk->data - sizeof(long double)));
+    *((canary_t *) (stk->data + newCapacity)) = *((canary_t *) (stk->data - sizeof(canary_t) / sizeof(Elem_t)));
 
     if(stk->capacity < newCapacity)
         for(size_t i = stk->capacity; i < newCapacity; i++)
@@ -105,7 +105,5 @@ void StackDtor(struct Stack *stk) {
 }
 
 int checkdatacanaries(struct Stack *stk) {
-    return *((long double *) (stk->data - sizeof(long double) / sizeof(Elem_t))) == *((long double *) (stk->data + stk->capacity));
+    return *((canary_t *) (stk->data - sizeof(canary_t) / sizeof(Elem_t))) == *((canary_t *) (stk->data + stk->capacity));
 }
-
-//TODO: snippet FILE* fp = NULL;

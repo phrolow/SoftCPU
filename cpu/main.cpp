@@ -1,18 +1,26 @@
-#include "stack.h"
+#include "cpu.h"
 
-int main() {
-    char *bin = NULL;
+int main(int argc, char* argv[]) {
+    if(argc < 2) {
+        printf("Too few arguments!");
+
+        exit(1);
+    }
+
+    struct Code *code = NULL;
     int err = 0;
 
     CleanLogs();
 
     struct Stack stk1 = StackNew();
 
-    getCode(argv[1]);
+    handle(getCode(&code, argv[1]));
 
-    handle(err = execute(code));
+    handle(execute(code, &stk1));
 
     StackDtor(&stk1);
+
+    printf("Alright, yeah");
 
     return err;
 }

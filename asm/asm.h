@@ -9,8 +9,6 @@
 #include <stdlib.h>
 #include <sys\stat.h>
 
-#include "Y:\\CodeBlocks\\MinGW\\include\\TXLib.h"
-
 //#define HERE printf("here");
 
 struct text {
@@ -30,6 +28,7 @@ const char* const INEXTENSION = "asm";
 const char* const OUTEXTENSION = "bin";
 const char* const TXTOUT = "a.txt";
 const char VERSION = 2;
+const size_t SIGN = 3 + sizeof(size_t);
 
 enum COMMAND {
     HLT_CMD,
@@ -51,7 +50,5 @@ int checkfile(const char *path, const char *extension);
 int compile(struct text *txt, struct Code *code);
 
 void assemble(struct Code *code, const char *path);
-
-void handler(int sig);
 
 #endif

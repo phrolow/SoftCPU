@@ -16,7 +16,7 @@ int compile(struct text *txt, struct Code *code) {
     code->bin[2] = VERSION;
     *((size_t*) (code->bin + 3)) = txt->nLine;
 
-    for(i = 3 + sizeof(size_t); i < (1 + sizeof(int)) * txt->nLine; i++) {
+    for(i = SIGN; i < SIGN + (1 + sizeof(int)) * txt->nLine; i++) {
         sscanf(txt->ptrs[line], "%s", cmd);
 
         if(!stricmp(cmd, "push")) {
@@ -26,7 +26,7 @@ int compile(struct text *txt, struct Code *code) {
 
             *((int*) (code->bin + (++i))) = arg;
 
-            i += sizeof(int);
+            i += sizeof(int) - 1;
         }
         else if(!stricmp(cmd, "add")) {
             code->bin[i] = ADD_CMD;
@@ -50,6 +50,7 @@ int compile(struct text *txt, struct Code *code) {
         }
         else if(!stricmp(cmd, "in")) {
             code->bin[i] = IN_CMD;
+            
         }
         else {
             return 1;
@@ -58,7 +59,9 @@ int compile(struct text *txt, struct Code *code) {
         line++;
     }
 
-    code->size = i - 1;
+    code->size = i + 1 - SIGN;
+
+    *((size_t*) (code->bin + 3)) = code->size;
     
     return 0;
 }
@@ -68,8 +71,8 @@ void assemble(struct Code *code, const char *path) {
 
     FILE *fp  = fopen(path, "wb");
 
-    fwrite(code->bin, sizeof(char), code->size, fp); //не хочет записывать в ебаный файл, в stdout заебок
-    
+    fwrite(code->bin, sizeof(char), code->size + SIGN, fp); 
+
     fclose(fp);
 
     /* fp = fopen(TXTOUT, "w");
@@ -84,8 +87,4 @@ void assemble(struct Code *code, const char *path) {
     fprintf(fp, "%d\n", 0);
     
     fclose(fp); */
-}
-
-void handler(int sig) {
-    printf("SIGNAL %d\n", sig);
 }
