@@ -1,4 +1,4 @@
-#include "cpu.h"
+#include "stack.h"
 
 struct Stack StackNew_(const char* name, const char* func, const char* file, size_t line) {
     struct StackInfo info = { NULL, NULL, NULL, 0 };

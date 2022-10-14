@@ -1,4 +1,4 @@
-#include "cpu.h"
+#include "stack.h"
 
 long StackHash(struct Stack *stk){
     stk->stackhash = 0;

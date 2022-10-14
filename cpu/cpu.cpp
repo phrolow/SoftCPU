@@ -3,6 +3,8 @@
 int execute(struct Code *code, struct Stack *stk) {
     assert(code && stk);
 
+    Elem_t  IN = 0;
+
     FILE *fp = fopen(LOGPATH, "ab");
     
     fprintf(fp, "Executing code (size = %llu)\nBin: ", code->size);
@@ -10,8 +12,6 @@ int execute(struct Code *code, struct Stack *stk) {
     fprintf(fp, "\n\n");
 
     fclose(fp);
-
-    int in = 0;
     
     for(size_t ip = 0; ip < code->size; ip++) {
         fp = fopen(LOGPATH, "ab");
@@ -50,9 +50,9 @@ int execute(struct Code *code, struct Stack *stk) {
 
                 break;
             case IN_CMD:
-                scanf("%d", &in);
+                scanf("%d", &IN);
 
-                StackPush(stk, in);
+                StackPush(stk, IN);
 
                 break;
             default:

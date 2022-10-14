@@ -16,7 +16,7 @@ int compile(struct text *txt, struct Code *code) {
     code->bin[2] = VERSION;
     *((size_t*) (code->bin + 3)) = txt->nLine;
 
-    for(i = SIGN; i < SIGN + (1 + sizeof(int)) * txt->nLine; i++) {
+    for(i = SIGNSIZE; i < SIGNSIZE + (1 + sizeof(int)) * txt->nLine; i++) {
         sscanf(txt->ptrs[line], "%s", cmd);
 
         if(!stricmp(cmd, "push")) {
@@ -59,7 +59,7 @@ int compile(struct text *txt, struct Code *code) {
         line++;
     }
 
-    code->size = i + 1 - SIGN;
+    code->size = i + 1 - SIGNSIZE;
 
     *((size_t*) (code->bin + 3)) = code->size;
     
@@ -71,7 +71,7 @@ void assemble(struct Code *code, const char *path) {
 
     FILE *fp  = fopen(path, "wb");
 
-    fwrite(code->bin, sizeof(char), code->size + SIGN, fp); 
+    fwrite(code->bin, sizeof(char), code->size + SIGNSIZE, fp); 
 
     fclose(fp);
 

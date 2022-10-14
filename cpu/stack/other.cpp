@@ -1,4 +1,4 @@
-#include "cpu.h"
+#include "stack.h"
 
 int binary(int n) {
     int res = 0, ten = 1;
