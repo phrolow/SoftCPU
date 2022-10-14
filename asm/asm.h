@@ -38,4 +38,6 @@ int compile(struct text *txt, struct Code *code);
 
 void assemble(struct Code *code, const char *path);
 
+int putArgs(const char *line, char *bin, size_t *ip, int argc);
+
 #endif

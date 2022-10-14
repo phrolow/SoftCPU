@@ -1,11 +1,18 @@
 #include "asm.h"
 
+#define DEF_CMD(name, num, argc, ...)                   \
+    if(!stricmp(cmd, #name)) {                          \
+        code->bin[ip++] = name##_CMD;                      \
+                                                        \
+        putArgs(txt->ptrs[line], code->bin, &ip, argc);   \
+    }                                                   \
+    else
+
 int compile(struct text *txt, struct Code *code) {
     assert(txt);
 
-    int arg = 0;
     size_t  line = 0,
-            i = 0;
+            ip = 0;
     char* cmd = NULL;
 
     cmd = (char*)calloc(txt->maxLine + 1, sizeof(char));
@@ -16,50 +23,16 @@ int compile(struct text *txt, struct Code *code) {
     code->bin[2] = VERSION;
     *((size_t*) (code->bin + 3)) = txt->nLine;
 
-    for(i = SIGNSIZE; i < SIGNSIZE + (1 + sizeof(int)) * txt->nLine; i++) {
+    for(line = 0; line < txt->nLine; line++) {
         sscanf(txt->ptrs[line], "%s", cmd);
 
-        if(!stricmp(cmd, "push")) {
-            code->bin[i] = PUSH_CMD;
-
-            sscanf(txt->ptrs[line], "%s %d", cmd, &arg);
-
-            *((int*) (code->bin + (++i))) = arg;
-
-            i += sizeof(int) - 1;
-        }
-        else if(!stricmp(cmd, "add")) {
-            code->bin[i] = ADD_CMD;
-        }
-        else if(!stricmp(cmd, "sub")) {
-            code->bin[i] = SUB_CMD;
-        }
-        else if(!stricmp(cmd, "mul")) {
-            code->bin[i] = MUL_CMD;
-        }
-        else if(!stricmp(cmd, "div")) {
-            code->bin[i] = DIV_CMD;
-        }
-        else if(!stricmp(cmd, "out")) {
-            code->bin[i] = OUT_CMD;
-        }
-        else if(!stricmp(cmd, "hlt")) {
-            code->bin[i] = HLT_CMD;
-
-            break;
-        }
-        else if(!stricmp(cmd, "in")) {
-            code->bin[i] = IN_CMD;
-            
-        }
-        else {
+        #include "../cmd.h"
+        /* else */ {
             return 1;
         }
-
-        line++;
     }
 
-    code->size = i + 1 - SIGNSIZE;
+    code->size = ip + 1 - SIGNSIZE;
 
     *((size_t*) (code->bin + 3)) = code->size;
     
@@ -74,17 +47,52 @@ void assemble(struct Code *code, const char *path) {
     fwrite(code->bin, sizeof(char), code->size + SIGNSIZE, fp); 
 
     fclose(fp);
+}
 
-    /* fp = fopen(TXTOUT, "w");
+int putArgs(const char *line, char *bin, size_t *ip, int argc) {
+    size_t  len = 0,
+            ptr = 0;
+    int     narg = 0;
+    char    *cmd = NULL,
+            *argv[argc + 1] = {},
+            flag = 0;
 
-    for(size_t i = 4; code[i] != 0; i++) {
-        if(i == 1)
-            fprintf(fp, "%d %d\n", code[i], code[++i]);
-        else
-            fprintf(fp, "%d\n", code[i]);
+    cmd = (char*)calloc(strlen(line) + 1, sizeof(char));
+    len = strlen(line);
+
+    for(size_t i = 0; i < len; i++) {
+        if(isalpha(line[i])) {
+            cmd[ptr++] = line[i];
+
+            if(!flag) {
+                if(narg > argc)
+                    return 1;
+
+                argv[narg] = &cmd[ptr - 1];
+
+                narg++;
+
+                flag = 1;
+            }
+        }
+        
+        if(flag && (line[i] == ' ' || line[i] == '\t')) {
+                cmd[ptr++] = '\0';
+
+                flag = 0;
+            }
+        
+        if(line[i] == ';') {
+            cmd[ptr] = '\0';
+
+            break;
+        }
     }
 
-    fprintf(fp, "%d\n", 0);
-    
-    fclose(fp); */
+    for(int i = 1; i <= argc; i++)
+        *((int*) (bin + *ip)) = (atoi(argv[i]));
+
+    *ip += sizeof(int) - 1;
+
+    return 0;
 }

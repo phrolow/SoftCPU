@@ -1,9 +1,20 @@
 #include "cpu.h"
 
+#define DEF_CMD(name, num, argc, ...)   \
+    case name##_CMD:                    \
+                                        \
+    getArgs(code->bin, &ip, argc, argv);                \
+                                        \
+    __VA_ARGS__
+
 int execute(struct Code *code, struct Stack *stk) {
     assert(code && stk);
 
     Elem_t  IN = 0;
+    Elem_t  A = 0;
+    Elem_t  B = 0;
+
+    int argv[2] = {};
 
     FILE *fp = fopen(LOGPATH, "ab");
     
@@ -20,41 +31,9 @@ int execute(struct Code *code, struct Stack *stk) {
 
         fclose(fp);
 
-        switch(code->bin[ip]) {
-            case HLT_CMD:
-                break;
-            case PUSH_CMD:
-                StackPush(stk, *((int*) (code->bin + (++ip))));
-                
-                ip += sizeof(int) - 1;
-
-                break;
-            case ADD_CMD:
-                StackPush(stk, StackPop(stk) + StackPop(stk));
-
-                break;
-            case SUB_CMD:
-                StackPush(stk, StackPop(stk) - StackPop(stk));
-
-                break;
-            case MUL_CMD:
-                StackPush(stk, StackPop(stk) * StackPop(stk));
-
-                break;
-            case DIV_CMD:
-                StackPush(stk, StackPop(stk) / StackPop(stk)); //handle
-
-                break;
-            case OUT_CMD:
-                printf("%d\n", StackPop(stk));
-
-                break;
-            case IN_CMD:
-                scanf("%d", &IN);
-
-                StackPush(stk, IN);
-
-                break;
+        switch(code->bin[ip] % 0b100000) {
+            #include "../cmd.h"
+            #undef DEF_CMD
             default:
                 return INVALID_COMMAND;
         }
@@ -107,4 +86,10 @@ int getCode(struct Code **code, const char *path) {
     fclose(fp);
     
     return 0;
+}
+
+int getArgs(char* bin, size_t *ip, int argc, int* argv) {
+    argv[0] = 1;
+
+    *ip += argc * sizeof(int);
 }

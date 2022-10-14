@@ -23,4 +23,6 @@ void handle(int err);
 
 int getCode(struct Code **code, const char *path);
 
+int getArgs(char* bin, size_t *ip, int argc, int* argv);
+
 #endif // CPU_H_INCLUDED
