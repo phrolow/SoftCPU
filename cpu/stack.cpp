@@ -91,13 +91,13 @@ void StackResize(struct Stack *stk, size_t newCapacity) {
 void StackDtor(struct Stack *stk) {
     ASSERT_OK(stk);
 
-    for(size_t i = 0; i <= stk->capacity; i++)
+    for(size_t i = 0; i < stk->capacity; i++)
         stk->data[i] = POISON;
     
     stk->capacity = 0;
     stk->Size = 0;
-
-    free(stk->data);
+    
+    free(stk->data - sizeof(canary_t)/sizeof(Elem_t));
 
     StackDump(stk); 
 

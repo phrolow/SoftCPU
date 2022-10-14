@@ -16,7 +16,7 @@ void StackDump_(struct Stack *stk, const char *func, const char *file, size_t li
     for(size_t i = 0; i < stk->capacity; i++) {
         fprintf(fp, "\t\t");
 
-        if(i <= stk->Size)
+        if(i < stk->Size)
             fprintf(fp, "*");
         
         fprintf(fp, "[%llu] = %d", i, stk->data[i]);

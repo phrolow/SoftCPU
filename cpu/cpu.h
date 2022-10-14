@@ -94,10 +94,11 @@ enum CpuError {
     ALL_RIGHT,
     INVALID_SIGNATURE,
     INVALID_SIZE,
-    INVALID_COMMAND
+    INVALID_COMMAND,
+    INVALID_ARGS
 };
 
-const Elem_t POISON = 999999;
+const Elem_t POISON = 348874;
 const size_t BIG_UNS = 1000000;
 const size_t START_CAPACITY = 1;
 const char* const ElemFormat = "%c";
