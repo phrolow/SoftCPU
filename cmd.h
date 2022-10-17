@@ -47,9 +47,14 @@ DEF_CMD(DUP, 7, 0, {
 })
 
 DEF_CMD(JMP, 8, 1, {
-    ip = args[0];
+    ip = arg;
 })
 
 DEF_CMD(PUSH, 9, 1, {
-    Push(args[0]);
+    Push(arg);
+})
+
+DEF_CMD(POP, 10, 1, {
+    A = Pop;
+    ram[arg] = A;
 })

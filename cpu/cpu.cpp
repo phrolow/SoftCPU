@@ -1,10 +1,10 @@
 #include "cpu.h"
 
-#define DEF_CMD(name, num, argc, ...)   \
-    case name##_CMD:                    \
-                                        \
-    getArgs(code->bin, &ip, argc, argv);                \
-                                        \
+#define DEF_CMD(name, num, argc, ...)                   \
+    case name##_CMD:                                    \
+                                                        \
+    arg = getArg(code->bin, &ip, argc, arg);                \
+                                                        \
     __VA_ARGS__
 
 int execute(struct Code *code, struct Stack *stk) {
@@ -13,8 +13,6 @@ int execute(struct Code *code, struct Stack *stk) {
     Elem_t  IN = 0;
     Elem_t  A = 0;
     Elem_t  B = 0;
-
-    int argv[2] = {};
 
     FILE *fp = fopen(LOGPATH, "ab");
     
@@ -30,6 +28,8 @@ int execute(struct Code *code, struct Stack *stk) {
         fprintf(fp, "EXECUTING COMMAND IP=%llu (%d):\n\n", ip, code->bin[ip]);
 
         fclose(fp);
+
+        int arg = 0;
 
         switch(code->bin[ip] % 0b100000) {
             #include "../cmd.h"
@@ -88,8 +88,26 @@ int getCode(struct Code **code, const char *path) {
     return 0;
 }
 
-int getArgs(char* bin, size_t *ip, int argc, int* argv) {
-    argv[0] = 1;
+int getArg(char* bin, size_t *ip, int argc) {
+    int arg = 0;
 
-    *ip += argc * sizeof(int);
+    if(argc == 0)
+        return;
+
+    char cmd = bin[*ip++];
+
+    if(cmd & ARG_IMMED) {
+        arg += *((int*) (bin + *ip));
+
+        *ip += sizeof(int);
+    }
+    if(cmd & ARG_REG) {
+        arg += regs[bin[*ip]];
+
+        *ip += sizeof(char);
+    }
+    if(cmd & ARG_RAM)
+        arg = ram[arg];
+
+    return arg;
 }

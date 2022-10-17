@@ -10,6 +10,9 @@ int main(int argc, char* argv[]) {
     struct Code *code = NULL;
     int err = 0;
 
+    ram = (char*)malloc(RAMSIZE);
+    regs = (char*)calloc(NUM_REGS, sizeof(char));
+
     CleanLogs();
 
     struct Stack stk1 = StackNew();
