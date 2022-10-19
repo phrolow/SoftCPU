@@ -29,7 +29,7 @@ int main(int argc, char *argv[]) {
 
     prog = textFromFile(argv[1]);
 
-    if(compile(&prog, &code)) {
+    if(compile(&prog, &code) || compile(&prog, &code)) {
         printf("ТЫ ЧЕ ДУРАК БЛЯТЬ!?");
 
         return 1;

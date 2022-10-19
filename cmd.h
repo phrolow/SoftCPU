@@ -1,5 +1,5 @@
 DEF_CMD(HLT, 0, 0, {
-    break;
+    return ALL_RIGHT;
 })
 
 DEF_CMD(ADD, 1, 0, {
@@ -47,7 +47,7 @@ DEF_CMD(DUP, 7, 0, {
 })
 
 DEF_CMD(JMP, 8, 1, {
-    ip = arg;
+    ip = arg - 1;
 })
 
 DEF_CMD(PUSH, 9, 1, {

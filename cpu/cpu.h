@@ -4,8 +4,8 @@
 #include "stack/stack.h"
 #include "../softcpu.h"
 
-#define Push(a) StackPush(&stk, a)
-#define Pop StackPop(&stk)
+#define Push(a) StackPush(stk, a)
+#define Pop StackPop(stk)
 
 struct Code {
     char* bin;
@@ -23,14 +23,14 @@ enum CpuError {
 const size_t RAMSIZE = 0x100;
 const size_t NUM_REGS = 4;
 
-static char* ram;
-static char* regs;
+extern int *ram;
+extern int *regs;
 
 int execute(struct Code *code, struct Stack *stk);
 
 void handle(int err);
 
-int getCode(struct Code **code, const char *path);
+int getCode(struct Code *code, const char *path);
 
 int getArg(char* bin, size_t *ip, int argc);
 

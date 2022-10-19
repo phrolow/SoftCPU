@@ -3,7 +3,7 @@
 #define DEF_CMD(name, num, argc, ...)                   \
     case name##_CMD:                                    \
                                                         \
-    arg = getArg(code->bin, &ip, argc);                \
+    arg = getArg(code->bin, &ip, argc);                 \
                                                         \
     __VA_ARGS__                                         \
                                                         \
@@ -12,7 +12,6 @@
 int execute(struct Code *code, struct Stack *stk) {
     assert(code && stk);
 
-    Elem_t  IN = 0;
     Elem_t  A = 0;
     Elem_t  B = 0;
 
@@ -27,13 +26,13 @@ int execute(struct Code *code, struct Stack *stk) {
     for(size_t ip = 0; ip < code->size; ip++) {
         fp = fopen(LOGPATH, "ab");
 
-        fprintf(fp, "EXECUTING COMMAND IP=%llu (%d):\n\n", ip, code->bin[ip]);
+        fprintf(fp, "EXECUTING COMMAND IP=%llu (%x):\n\n", ip, code->bin[ip]);
 
         fclose(fp);
 
         int arg = 0;
 
-        switch(code->bin[ip] % 0b100000) {
+        switch(code->bin[ip] % 0x20) {
             #include "../cmd.h"
             #undef DEF_CMD
             default:
@@ -56,11 +55,7 @@ void handle(int err) {
     }
 }
 
-int getCode(struct Code **code, const char *path) {
-    struct Code cod = { NULL, 0 };
-
-    *code = &cod;
-
+int getCode(struct Code *code, const char *path) {
     char sign[3 + sizeof(size_t) + 1] = {};
 
     FILE *fp = fopen(path, "rb");
@@ -71,19 +66,21 @@ int getCode(struct Code **code, const char *path) {
         return INVALID_SIGNATURE;
     }
     
-    (*code)->size = *((size_t *) (sign + 3));
+    code->size = *((size_t *) (sign + 3));
 
-    (*code)->bin = (char*)calloc((*code)->size, sizeof(char));
+    code->bin = (char*)calloc(code->size, sizeof(char));
 
-    fread((*code)->bin, sizeof(char), (*code)->size, fp);
+    fread(code->bin, sizeof(char), code->size, fp);
     
     fclose(fp);
 
-    fp = fopen(LOGPATH, "wb");
+    fp = fopen(LOGPATH, "ab");
     
-    fprintf(fp, "GOT CODE (SIZE = %llu) WITH SIGNATURE: \n", (*code)->size);
-    fwrite(sign, sizeof(char), 3 + sizeof(size_t), fp);
-    fprintf(fp, "\n");
+    fprintf(fp, "GOT CODE (SIZE = %llu).\nSignature: \n", code->size);
+    fwrite(sign, sizeof(char), SIGNSIZE, fp);
+    fprintf(fp, "\nBin:\n");
+    fwrite(code->bin, sizeof(char), code->size, fp);
+    fprintf(fp, "\n\n");
     
     fclose(fp);
     
@@ -96,20 +93,35 @@ int getArg(char* bin, size_t *ip, int argc) {
     if(argc == 0)
         return 0;
 
-    char cmd = bin[*ip++];
+    FILE *fp = fopen(LOGPATH, "ab");
+    
+    char cmd = bin[(*ip)++];
 
     if(cmd & ARG_IMMED) {
         arg += *((int*) (bin + *ip));
 
+        fprintf(fp, "IP[%llu] Got immed arg: %d\n", *ip, *((int*) (bin + *ip)));
+
         *ip += sizeof(int);
     }
     if(cmd & ARG_REG) {
-        arg += regs[bin[*ip]];
+        arg += regs[(int) bin[*ip]];
+
+        fprintf(fp, "IP[%llu] Got register arg: %d (from reg r%cx)\n", *ip, regs[(int) bin[*ip]], bin[*ip] + 'a' - 1);
 
         *ip += sizeof(char);
     }
-    if(cmd & ARG_RAM)
+    if(cmd & ARG_RAM) {
+        fprintf(fp, "Arg is from RAM (RAM[%d]) = %d\n", arg, ram[arg]);
+
         arg = ram[arg];
+    }
+    
+    (*ip)--;
+
+    fprintf(fp, "Got arg: %d\n\n", arg);
+    
+    fclose(fp);
 
     return arg;
 }

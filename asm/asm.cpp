@@ -130,7 +130,7 @@ int putArgs(const char *line, char *bin, size_t *ip, int argc) {
         if(argv[1][0] == ':')
             sscanf(argv[1], ":%s", lname);
 
-        for(size_t i = 0; i < MAXLABELS && labels[i].ptr; i++) {
+        for(size_t i = 0; i <= MAXLABELS; i++) {
             if(!stricmp(lname, labels[i].name))
                 *((int *) (bin + *ip)) = labels[i].ptr;
         }
