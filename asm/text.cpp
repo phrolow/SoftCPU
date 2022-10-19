@@ -60,7 +60,12 @@ struct text textFromFile(const char *path) {
         currentLine++;
 
         if(content[i] == '\0') {
-            ptrs[iLine] = &(content[i + 1]);
+            i++;
+
+            while(isspace(content[i]))
+                i++;
+            
+            ptrs[iLine] = &(content[i]);
 
             iLine++;
 

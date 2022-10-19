@@ -3,9 +3,11 @@
 #define DEF_CMD(name, num, argc, ...)                   \
     case name##_CMD:                                    \
                                                         \
-    arg = getArg(code->bin, &ip, argc, arg);                \
+    arg = getArg(code->bin, &ip, argc);                \
                                                         \
-    __VA_ARGS__
+    __VA_ARGS__                                         \
+                                                        \
+    break;
 
 int execute(struct Code *code, struct Stack *stk) {
     assert(code && stk);
@@ -92,7 +94,7 @@ int getArg(char* bin, size_t *ip, int argc) {
     int arg = 0;
 
     if(argc == 0)
-        return;
+        return 0;
 
     char cmd = bin[*ip++];
 

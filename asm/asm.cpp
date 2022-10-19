@@ -36,8 +36,10 @@ int compile(struct text *txt, struct Code *code) {
     for(line = 0; line < txt->nLine; line++) {
         fprintf(logfile, "\n\nAssembling line %llu: %s\n", line + 1, txt->ptrs[line]);
 
-        if(sscanf(txt->ptrs[line], ":%s", lname)) {
-            labels[nLabel].ptr = (int) ip + 1;
+        if(txt->ptrs[line][0] == ':') {
+            sscanf(txt->ptrs[line], ":%s", lname);
+
+            labels[nLabel].ptr = (int) (ip - SIGNSIZE);
             strcpy(labels[nLabel].name, lname);
 
             nLabel++;
@@ -120,70 +122,77 @@ int putArgs(const char *line, char *bin, size_t *ip, int argc) {
     
     ON_DEBUG_MODE(fprintf(logfile, "Recognized as \"%s\" (%d args)\n", argv[0], argc));
 
-    if(!stricmp(argv[0], "jmp") && argv[1][1] == ':') {
+    if(!stricmp(argv[0], "jmp") && (argv[1][0] == ':' || !atoi(argv[1]))) {
+        bin[*ip - 1] |= ARG_IMMED;
+
         *((int *) (bin + *ip)) = -1;
 
-        sscanf(argv[1], ":%s", lname);
+        if(argv[1][0] == ':')
+            sscanf(argv[1], ":%s", lname);
 
         for(size_t i = 0; i < MAXLABELS && labels[i].ptr; i++) {
             if(!stricmp(lname, labels[i].name))
                 *((int *) (bin + *ip)) = labels[i].ptr;
         }
+
+        *ip += sizeof(int);
     }
+    else
+        for(int i = 1; i <= argc; i++) {
+            char reg = 7;
 
-    for(int i = 1; i <= argc; i++) {
-        char reg = 7;
+            if(sscanf(argv[i], "[%s]", argv[i])) {
+                bin[*ip - 1] |= ARG_RAM;
 
-        if(sscanf(argv[i], "[%s]", argv[i])) {
-            bin[*ip - 1] |= ARG_RAM;
+                fprintf(logfile, "RAM arg\n");
+            }
 
-            fprintf(logfile, "RAM arg\n");
+            if(strchr(argv[i], '+')) {
+                sscanf(argv[i], "r%cx+%d", &reg, &imm);
+
+                bin[*ip - 1] |= (ARG_IMMED | ARG_REG);
+
+                *((int*) (bin + *ip)) = imm;
+
+                *ip += (sizeof(int));
+
+                bin[*ip] = (reg - 'a' + 1);
+
+                *ip += (sizeof(char));
+
+                ON_DEBUG_MODE(fprintf(logfile, "IMM & REG arg\n"));
+            }
+            else if(argv[i][0] == 'r' && argv[i][2] == 'x' && argv[i][3] == '\0') {
+                sscanf(argv[i], "r%cx", &reg);
+
+                bin[*ip - 1] |= ARG_REG;
+                
+                bin[*ip] = (reg - 'A' + 1);
+
+                *ip += (sizeof(char));
+
+                ON_DEBUG_MODE(fprintf(logfile, "REG arg\n"));
+            }
+            else if(sscanf(argv[i], "%d", &imm)) {
+                bin[*ip - 1] |= ARG_IMMED;
+
+                *((int*) (bin + *ip)) = imm;
+
+                *ip += (sizeof(int));
+
+                ON_DEBUG_MODE(fprintf(logfile, "IMM arg\n"));
+            }
+            else
+                return 1;
         }
 
-        if(strchr(argv[i], '+')) {
-            sscanf(argv[i], "r%cx+%d", &reg, &imm);
-
-            bin[*ip - 1] |= (ARG_IMMED | ARG_REG);
-
-            *((int*) (bin + *ip)) = imm;
-
-            *ip += (sizeof(int));
-
-            bin[*ip] = (reg - 'a' + 1);
-
-            *ip += (sizeof(char));
-
-            ON_DEBUG_MODE(fprintf(logfile, "IMM & REG arg\n"));
-        }
-        else if(argv[i][0] == 'r' && argv[i][2] == 'x' && argv[i][3] == '\0') {
-            sscanf(argv[i], "r%cx", &reg);
-
-            bin[*ip - 1] |= ARG_REG;
-            
-            bin[*ip] = (reg - 'A' + 1);
-
-            *ip += (sizeof(char));
-
-            ON_DEBUG_MODE(fprintf(logfile, "REG arg\n"));
-        }
-        else if(sscanf(argv[i], "%d", &imm)) {
-            bin[*ip - 1] |= ARG_IMMED;
-
-            *((int*) (bin + *ip)) = imm;
-
-            *ip += (sizeof(int));
-
-            ON_DEBUG_MODE(fprintf(logfile, "IMM arg\n"));
-        }
-        else
-            return 1;
-    }
-
+    #ifdef DEBUG_MODE
     if(argc) {
         fprintf(logfile, "Assembled binary code (%llu bytes):\n", *ip - ipcpy + 1);
         fwrite(bin + ipcpy - 1, *ip - ipcpy + 1, sizeof(char), logfile);
         fprintf(logfile, "\n");
     }
+    #endif
 
     free(cmd);
     free(lname);
