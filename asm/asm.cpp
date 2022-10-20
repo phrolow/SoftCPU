@@ -152,13 +152,13 @@ int putArgs(const char *line, char *bin, size_t *ip, int argc) {
 
                 bin[*ip - 1] |= (ARG_IMMED | ARG_REG);
 
-                *((int*) (bin + *ip)) = imm;
-
-                *ip += (sizeof(int));
-
                 bin[*ip] = (reg - 'a' + 1);
 
                 *ip += (sizeof(char));
+
+                *((int*) (bin + *ip)) = imm;
+
+                *ip += (sizeof(int));
 
                 ON_DEBUG_MODE(fprintf(logfile, "IMM & REG arg\n"));
             }
@@ -167,7 +167,7 @@ int putArgs(const char *line, char *bin, size_t *ip, int argc) {
 
                 bin[*ip - 1] |= ARG_REG;
                 
-                bin[*ip] = (reg - 'A' + 1);
+                bin[*ip] = (reg - 'a' + 1);
 
                 *ip += (sizeof(char));
 

@@ -1,7 +1,8 @@
 #include "cpu.h"
 
-int *ram;
-int *regs;
+int *ram,
+    *regs,
+    ARGREG;
 
 int main(int argc, char* argv[]) {
     CleanLogs();
@@ -18,6 +19,7 @@ int main(int argc, char* argv[]) {
 
     ram = (int*)malloc(RAMSIZE * sizeof(int));
     regs = (int*)calloc(NUM_REGS, sizeof(int));
+    ARGREG = 0;
 
     handle(getCode(&code, argv[1]));
 

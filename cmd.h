@@ -47,14 +47,77 @@ DEF_CMD(DUP, 7, 0, {
 })
 
 DEF_CMD(JMP, 8, 1, {
-    ip = arg - 1;
+    ip = *arg - 1;
 })
 
 DEF_CMD(PUSH, 9, 1, {
-    Push(arg);
+    Push(*arg);
 })
 
 DEF_CMD(POP, 10, 1, {
+    if(arg == &ARGREG)
+        return INVALID_ARGS;
+
     A = Pop;
-    ram[arg] = A;
+    *arg = A;
+})
+
+DEF_CMD(JB, 11, 1, {
+    A = Pop;
+    B = Pop;
+
+    if(A < B)
+        ip = *arg - 1;
+})
+
+DEF_CMD(JBE, 12, 1, {
+    A = Pop;
+    B = Pop;
+
+    if(A <= B)
+        ip = *arg - 1;
+})
+
+DEF_CMD(JA, 13, 1, {
+    A = Pop;
+    B = Pop;
+
+    if(A > B)
+        ip = *arg - 1;
+})
+
+DEF_CMD(JAE, 14, 1, {
+    A = Pop;
+    B = Pop;
+
+    if(A >= B)
+        ip = *arg - 1;
+})
+
+DEF_CMD(JE, 15, 1, {
+    A = Pop;
+    B = Pop;
+
+    if(A == B)
+        ip = *arg - 1;
+})
+
+DEF_CMD(JNE, 16, 1, {
+    A = Pop;
+    B = Pop;
+
+    if(A != B)
+        ip = *arg - 1;
+})
+
+DEF_CMD(JE, 15, 1, {
+    A = Pop;
+    B = Pop;
+
+    if(A == B)
+        ip = *arg - 1;
+})
+
+DEF_CMD(CALL, 16, 1, {
+    
 })

@@ -14,6 +14,7 @@ int execute(struct Code *code, struct Stack *stk) {
 
     Elem_t  A = 0;
     Elem_t  B = 0;
+    int *arg = NULL;
 
     FILE *fp = fopen(LOGPATH, "ab");
     
@@ -29,8 +30,6 @@ int execute(struct Code *code, struct Stack *stk) {
         fprintf(fp, "EXECUTING COMMAND IP=%llu (%x):\n\n", ip, code->bin[ip]);
 
         fclose(fp);
-
-        int arg = 0;
 
         switch(code->bin[ip] % 0x20) {
             #include "../cmd.h"
@@ -87,8 +86,8 @@ int getCode(struct Code *code, const char *path) {
     return 0;
 }
 
-int getArg(char* bin, size_t *ip, int argc) {
-    int arg = 0;
+int *getArg(char* bin, size_t *ip, int argc) {
+    int *ptr = NULL;
 
     if(argc == 0)
         return 0;
@@ -97,31 +96,35 @@ int getArg(char* bin, size_t *ip, int argc) {
     
     char cmd = bin[(*ip)++];
 
-    if(cmd & ARG_IMMED) {
-        arg += *((int*) (bin + *ip));
-
-        fprintf(fp, "IP[%llu] Got immed arg: %d\n", *ip, *((int*) (bin + *ip)));
-
-        *ip += sizeof(int);
-    }
     if(cmd & ARG_REG) {
-        arg += regs[(int) bin[*ip]];
+        ARGREG += regs[(int) bin[*ip]];
+        ptr = regs + (int) bin[*ip];
 
         fprintf(fp, "IP[%llu] Got register arg: %d (from reg r%cx)\n", *ip, regs[(int) bin[*ip]], bin[*ip] + 'a' - 1);
 
         *ip += sizeof(char);
     }
-    if(cmd & ARG_RAM) {
-        fprintf(fp, "Arg is from RAM (RAM[%d]) = %d\n", arg, ram[arg]);
+    if(cmd & ARG_IMMED) {
+        ARGREG += *((int*) (bin + *ip));
+        ptr = &ARGREG;
 
-        arg = ram[arg];
+        fprintf(fp, "IP[%llu] Got immed arg: %d\n", *ip, *((int*) (bin + *ip)));
+
+        *ip += sizeof(int);
+    }
+    if(cmd & ARG_RAM) {
+        fprintf(fp, "Arg is from RAM (RAM[%d]) = %d\n", ARGREG, ram[ARGREG]);
+
+        ptr = ram + ARGREG;
+        ARGREG = *ptr;
     }
     
     (*ip)--;
 
-    fprintf(fp, "Got arg: %d\n\n", arg);
-    
+    fprintf(fp, "Got arg: %d\n\n", ARGREG);
+    ARGREG = 0;
+
     fclose(fp);
 
-    return arg;
+    return ptr;
 }

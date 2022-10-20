@@ -23,6 +23,7 @@ enum CpuError {
 const size_t RAMSIZE = 0x100;
 const size_t NUM_REGS = 4;
 
+extern int ARGREG;
 extern int *ram;
 extern int *regs;
 
@@ -32,6 +33,6 @@ void handle(int err);
 
 int getCode(struct Code *code, const char *path);
 
-int getArg(char* bin, size_t *ip, int argc);
+int *getArg(char* bin, size_t *ip, int argc);
 
 #endif // CPU_H_INCLUDED
