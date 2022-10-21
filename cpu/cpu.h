@@ -26,6 +26,7 @@ const size_t NUM_REGS = 4;
 extern int ARGREG;
 extern int *ram;
 extern int *regs;
+extern struct Stack callstk;
 
 int execute(struct Code *code, struct Stack *stk);
 

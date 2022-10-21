@@ -122,16 +122,16 @@ int putArgs(const char *line, char *bin, size_t *ip, int argc) {
     
     ON_DEBUG_MODE(fprintf(logfile, "Recognized as \"%s\" (%d args)\n", argv[0], argc));
 
-    if(!stricmp(argv[0], "jmp") && (argv[1][0] == ':' || !atoi(argv[1]))) {
+    if((!stricmp(argv[0], "jmp") || !stricmp(argv[0], "call")) && (argv[1][0] == ':' || !atoi(argv[1]))) {
         bin[*ip - 1] |= ARG_IMMED;
 
         *((int *) (bin + *ip)) = -1;
 
         if(argv[1][0] == ':')
-            sscanf(argv[1], ":%s", lname);
+            argv[1] += 1;
 
         for(size_t i = 0; i <= MAXLABELS; i++) {
-            if(!stricmp(lname, labels[i].name))
+            if(!stricmp(argv[1], labels[i].name))
                 *((int *) (bin + *ip)) = labels[i].ptr;
         }
 

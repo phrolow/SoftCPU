@@ -88,6 +88,7 @@ int getCode(struct Code *code, const char *path) {
 
 int *getArg(char* bin, size_t *ip, int argc) {
     int *ptr = NULL;
+    ARGREG = 0;
 
     if(argc == 0)
         return 0;
@@ -122,7 +123,6 @@ int *getArg(char* bin, size_t *ip, int argc) {
     (*ip)--;
 
     fprintf(fp, "Got arg: %d\n\n", ARGREG);
-    ARGREG = 0;
 
     fclose(fp);
 

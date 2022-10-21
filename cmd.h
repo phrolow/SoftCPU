@@ -110,14 +110,12 @@ DEF_CMD(JNE, 16, 1, {
         ip = *arg - 1;
 })
 
-DEF_CMD(JE, 15, 1, {
-    A = Pop;
-    B = Pop;
+DEF_CMD(CALL, 17, 1, {
+    StackPush(&callstk, (int) ip + 1);
 
-    if(A == B)
-        ip = *arg - 1;
+    ip = *arg - 1;
 })
 
-DEF_CMD(CALL, 16, 1, {
-    
+DEF_CMD(RET, 18, 0, {
+    ip = StackPop(&callstk) - 1;
 })

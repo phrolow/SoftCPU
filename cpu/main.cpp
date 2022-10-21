@@ -3,6 +3,7 @@
 int *ram,
     *regs,
     ARGREG;
+struct Stack callstk;
 
 int main(int argc, char* argv[]) {
     CleanLogs();
@@ -16,6 +17,7 @@ int main(int argc, char* argv[]) {
     struct Code code = { NULL, 0};
     int err = 0;
     struct Stack stk1 = StackNew();
+    callstk = StackNew();
 
     ram = (int*)malloc(RAMSIZE * sizeof(int));
     regs = (int*)calloc(NUM_REGS, sizeof(int));
@@ -26,6 +28,7 @@ int main(int argc, char* argv[]) {
     handle(execute(&code, &stk1));
 
     StackDtor(&stk1);
+    StackDtor(&callstk);
 
     printf("Alright, yeah");
 
