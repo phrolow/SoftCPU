@@ -74,7 +74,7 @@ enum StackError {
 
 const Elem_t POISON = 348874;
 const size_t BIG_UNS = 1000000;
-const size_t START_CAPACITY = 1;
+const size_t START_CAPACITY = 8;
 const char* const ElemFormat = "%d";
 const char* const LOGPATH = "log.txt";
 

@@ -30,8 +30,10 @@ struct Stack StackNew_(const char* name, const char* func, const char* file, siz
 
     #endif
 
-    stk.data[0] = POISON;
-
+    for(size_t i = 0; i < START_CAPACITY; i++) {
+        stk.data[i] = POISON;
+    }
+    
     StackDataHash(&stk);
     StackHash(&stk);
 
@@ -61,7 +63,7 @@ Elem_t StackPop(struct Stack *stk) {
     StackDataHash(stk);
     StackHash(stk);
 
-    if(stk->Size + 1 <= stk->capacity / 2 && stk->Size > 0)
+    if(stk->Size + 1 <= stk->capacity / 2 && stk->Size > 0 && stk->capacity > START_CAPACITY)
         StackResize(stk, stk->capacity / 2);
 
     RETURN res;

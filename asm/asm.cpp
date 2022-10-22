@@ -122,7 +122,7 @@ int putArgs(const char *line, char *bin, size_t *ip, int argc) {
     
     ON_DEBUG_MODE(fprintf(logfile, "Recognized as \"%s\" (%d args)\n", argv[0], argc));
 
-    if((!stricmp(argv[0], "jmp") || !stricmp(argv[0], "call")) && (argv[1][0] == ':' || !atoi(argv[1]))) {
+    if(checkjmp(argv[0]) && (argv[1][0] == ':' || !atoi(argv[1]))) {
         bin[*ip - 1] |= ARG_IMMED;
 
         *((int *) (bin + *ip)) = -1;
@@ -197,5 +197,14 @@ int putArgs(const char *line, char *bin, size_t *ip, int argc) {
     free(cmd);
     free(lname);
 
+    return 0;
+}
+
+int checkjmp(const char *cmd) {
+    for(int i = 0; i < NJMPCMDS; i++) {
+        if(!stricmp(cmd, JMPCMDS[i]))
+            return 1;
+    }
+    
     return 0;
 }

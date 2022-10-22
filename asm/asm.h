@@ -21,6 +21,17 @@ const char* const INEXTENSION = "asm";
 const char* const OUTEXTENSION = "bin";
 const char* const TXTOUT = "a.txt";
 const char* const LOGPATH = "log.txt";
+const char* const JMPCMDS[] = {
+    "JMP",
+    "CALL",
+    "JA",
+    "JAE",
+    "JB",
+    "JBE",
+    "JE",
+    "JNE"
+}; //cringe
+const int NJMPCMDS = 8; //cringe
 
 struct text {
     char *content;
@@ -54,5 +65,7 @@ int compile(struct text *txt, struct Code *code);
 void assemble(struct Code *code, const char *path);
 
 int putArgs(const char *line, char *bin, size_t *ip, int argc);
+
+int checkjmp(const char *cmd);
 
 #endif
