@@ -89,7 +89,7 @@ int checkfile(const char* path, const char *extension) {
     if(ptr) {
         ptr++;
 
-        if(strcmp(ptr, extension))
+        if(!strcmp(ptr, extension))
             return 1;
     }
 

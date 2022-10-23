@@ -57,9 +57,6 @@ int disassemble(struct Code *code, const char *path) {
     fprintf(logfile, "\n\n");
 
     for(size_t ip = 0; ip < code->size; ip++) {
-
-        fprintf(logfile, "DISASSEMBLING COMMAND IP=%llu (%x):\n\n", ip, code->bin[ip]);
-
         switch(code->bin[ip] % 0x20) {
             #include "../cmd.h"
             #undef DEF_CMD

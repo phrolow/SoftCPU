@@ -12,7 +12,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    /* if(!checkfile(argv[1], INEXTENSION)) {
+    if(!checkfile(argv[1], INEXTENSION)) {
         printf("Invalid input file");
 
         return 1;
@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) {
         printf("Invalid output file");
 
         return 1;
-    } */
+    } 
 
     struct Code code = { NULL, 0 };
     struct text prog = { NULL, NULL, 0, 0, 0 };
