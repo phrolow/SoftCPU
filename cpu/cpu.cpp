@@ -12,13 +12,11 @@
 int execute(struct Code *code, struct Stack *stk) {
     assert(code && stk);
 
-    Elem_t  A = 0;
-    Elem_t  B = 0;
     int *arg = NULL;
 
     FILE *fp = fopen(LOGPATH, "ab");
     
-    fprintf(fp, "Executing code (size = %llu)\nBin: ", code->size);
+    fprintf(fp, "Disassembling code (size = %llu)\nBin: ", code->size);
     fwrite(code->bin, sizeof(char), code->size, fp);
     fprintf(fp, "\n\n");
 
@@ -27,7 +25,7 @@ int execute(struct Code *code, struct Stack *stk) {
     for(size_t ip = 0; ip < code->size; ip++) {
         fp = fopen(LOGPATH, "ab");
 
-        fprintf(fp, "EXECUTING COMMAND IP=%llu (%x):\n\n", ip, code->bin[ip]);
+        fprintf(fp, "DISASSEMBLING COMMAND IP=%llu (%x):\n\n", ip, code->bin[ip]);
 
         fclose(fp);
 
