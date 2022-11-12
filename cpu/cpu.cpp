@@ -3,16 +3,18 @@
 #define DEF_CMD(name, num, argc, ...)                   \
     case name##_CMD:                                    \
                                                         \
-    arg = getArg(code->bin, &ip, argc);                 \
+    arg = getArg(cpu, code->bin, &ip, argc);                 \
                                                         \
     __VA_ARGS__                                         \
                                                         \
     break;
 
-int execute(struct Code *code, struct Stack *stk) {
-    assert(code && stk);
+int execute(struct Code *code, struct CPU *cpu) {
+    assert(code && cpu && cpu->ram && cpu->regs && cpu->stk && cpu->callstk);
 
-    int *arg = NULL;
+    int *arg = NULL,
+        A = 0,
+        B = 0;
 
     FILE *fp = fopen(LOGPATH, "ab");
     
@@ -84,9 +86,9 @@ int getCode(struct Code *code, const char *path) {
     return 0;
 }
 
-int *getArg(char* bin, size_t *ip, int argc) {
+int *getArg(struct CPU *cpu, char* bin, size_t *ip, int argc) {
     int *ptr = NULL;
-    ARGREG = 0;
+    cpu->ARGREG = 0;
 
     if(argc == 0)
         return 0;
@@ -96,31 +98,31 @@ int *getArg(char* bin, size_t *ip, int argc) {
     char cmd = bin[(*ip)++];
 
     if(cmd & ARG_REG) {
-        ARGREG += regs[(int) bin[*ip]];
-        ptr = regs + (int) bin[*ip];
+        cpu->ARGREG += cpu->regs[(int) bin[*ip]];
+        ptr = cpu->regs + (int) bin[*ip];
 
-        fprintf(fp, "IP[%llu] Got register arg: %d (from reg r%cx)\n", *ip, regs[(int) bin[*ip]], bin[*ip] + 'a' - 1);
+        fprintf(fp, "IP[%llu] Got register arg: %d (from reg r%cx)\n", *ip, cpu->regs[(int) bin[*ip]], bin[*ip] + 'a' - 1);
 
         *ip += sizeof(char);
     }
     if(cmd & ARG_IMMED) {
-        ARGREG += *((int*) (bin + *ip));
-        ptr = &ARGREG;
+        cpu->ARGREG += *((int*) (bin + *ip));
+        ptr = &(cpu->ARGREG);
 
         fprintf(fp, "IP[%llu] Got immed arg: %d\n", *ip, *((int*) (bin + *ip)));
 
         *ip += sizeof(int);
     }
     if(cmd & ARG_RAM) {
-        fprintf(fp, "Arg is from RAM (RAM[%d]) = %d\n", ARGREG, ram[ARGREG]);
+        fprintf(fp, "Arg is from RAM (RAM[%d]) = %d\n", cpu->ARGREG, cpu->ram[cpu->ARGREG]);
 
-        ptr = ram + ARGREG;
-        ARGREG = *ptr;
+        ptr = cpu->ram + cpu->ARGREG;
+        cpu->ARGREG = *ptr;
     }
     
     (*ip)--;
 
-    fprintf(fp, "Got arg: %d\n\n", ARGREG);
+    fprintf(fp, "Got arg: %d\n\n", cpu->ARGREG);
 
     fclose(fp);
 

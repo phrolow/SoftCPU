@@ -55,7 +55,7 @@ DEF_CMD(PUSH, 9, 1, {
 })
 
 DEF_CMD(POP, 10, 1, {
-    if(arg == &ARGREG)
+    if(arg == &(cpu->ARGREG))
         return INVALID_ARGS;
 
     A = Pop;
@@ -111,11 +111,11 @@ DEF_CMD(JNE, 16, 1, {
 })
 
 DEF_CMD(CALL, 17, 1, {
-    StackPush(&callstk, (int) ip + 1);
+    StackPush(cpu->callstk, (int) ip + 1);
 
     ip = *arg - 1;
 })
 
 DEF_CMD(RET, 18, 0, {
-    ip = StackPop(&callstk) - 1;
+    ip = StackPop(cpu->callstk) - 1;
 })
