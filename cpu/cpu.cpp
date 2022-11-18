@@ -3,7 +3,7 @@
 #define DEF_CMD(name, num, argc, ...)                   \
     case name##_CMD:                                    \
                                                         \
-    arg = getArg(cpu, code->bin, &ip, argc);                 \
+    arg = getArg(cpu, code->bin, &ip, argc);            \
                                                         \
     __VA_ARGS__                                         \
                                                         \

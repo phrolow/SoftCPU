@@ -11,7 +11,7 @@ DEF_CMD(ADD, 1, 0, {
 DEF_CMD(SUB, 2, 0, {
     A = Pop;
     B = Pop;
-    Push(A - B);
+    Push(B - A);
 })
 
 DEF_CMD(MUL, 3, 0, {
@@ -118,4 +118,10 @@ DEF_CMD(CALL, 17, 1, {
 
 DEF_CMD(RET, 18, 0, {
     ip = StackPop(cpu->callstk) - 1;
+})
+
+DEF_CMD(ASQRT, 19, 0, {
+    A = Pop;
+
+    Push((int) (sqrt(A) * cpu->ram[0]));
 })
