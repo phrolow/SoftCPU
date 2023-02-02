@@ -1,7 +1,7 @@
 #include "asm.h"
 
 #define DEF_CMD(name, num, argc, ...)                       \
-    if(!stricmp(cmd, #name)) {                              \
+    if(!strcasecmp(cmd, #name)) {                              \
         code->bin[ip++] = name##_CMD;                       \
                                                             \
         fprintf(logfile, "Binary of command:\n");                \
@@ -23,7 +23,7 @@ int compile(struct text *txt, struct Code *code) {
          *lname = NULL;
     
     cmd = (char*)calloc(txt->maxLine + 1, sizeof(char));
-    code->bin = (char*)calloc(2 * txt->nLine + 4 + 1, sizeof(char));
+    code->bin = (char*)calloc(5 * txt->nLine + 4 + 1, sizeof(char));
     lname = (char*)calloc(LABELSIZE, sizeof(char));
 
     code->bin[0] = 'V';
@@ -131,7 +131,7 @@ int putArgs(const char *line, char *bin, size_t *ip, int argc) {
             argv[1] += 1;
 
         for(size_t i = 0; i <= MAXLABELS; i++) {
-            if(!stricmp(argv[1], labels[i].name))
+            if(!strcasecmp(argv[1], labels[i].name))
                 *((int *) (bin + *ip)) = labels[i].ptr;
         }
 
@@ -201,8 +201,11 @@ int putArgs(const char *line, char *bin, size_t *ip, int argc) {
 }
 
 int checkjmp(const char *cmd) {
+    if(!cmd)
+        return 0;
+
     for(int i = 0; i < NJMPCMDS; i++) {
-        if(!stricmp(cmd, JMPCMDS[i]))
+        if(!strcasecmp(cmd, JMPCMDS[i]))
             return 1;
     }
     

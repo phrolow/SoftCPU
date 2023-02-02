@@ -8,7 +8,7 @@
 #include <string.h>
 #include <stdarg.h>
 #include <stdlib.h>
-#include <sys\stat.h>
+#include <sys/stat.h>
 
 #include "../softcpu.h"
 
@@ -20,7 +20,7 @@ const size_t MAXLABELS = 50;
 const char* const INEXTENSION = "asm";
 const char* const OUTEXTENSION = "bin";
 const char* const TXTOUT = "a.txt";
-const char* const LOGPATH = "log.txt";
+const char* const LOGPATH = "asmlog.txt";
 const char* const JMPCMDS[] = {
     "JMP",
     "CALL",
@@ -58,8 +58,6 @@ struct text maketext(char *content, char **ptrs, size_t nChar, size_t nLine, siz
 
 struct text textFromFile(const char *path);
 
-int checkfile(const char *path, const char *extension);
-
 int compile(struct text *txt, struct Code *code);
 
 void assemble(struct Code *code, const char *path);
@@ -67,5 +65,7 @@ void assemble(struct Code *code, const char *path);
 int putArgs(const char *line, char *bin, size_t *ip, int argc);
 
 int checkjmp(const char *cmd);
+
+void txtDtor(struct text *txt);
 
 #endif

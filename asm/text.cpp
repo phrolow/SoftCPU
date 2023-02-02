@@ -38,7 +38,7 @@ struct text textFromFile(const char *path) {
 
     fclose(fp);
 
-    content = (char*)realloc(content, nChar + 1);
+    content = (char*)realloc(content, (nChar + 2) * sizeof(char));
 
     for(i = 0; i < nChar; i++)
         if(content[i] == '\n') {
@@ -79,19 +79,13 @@ struct text textFromFile(const char *path) {
     return maketext(content, ptrs, nChar, nLine, maxLine);
 }
 
-int checkfile(const char* path, const char *extension) {
-    assert(path && extension);
+void txtDtor(struct text *txt) {
+    free(txt->content);
+    free(txt->ptrs);
 
-    char* ptr = NULL;
-
-    ptr = strchr(path, '.');
-
-    if(ptr) {
-        ptr++;
-
-        if(!strcmp(ptr, extension))
-            return 1;
-    }
-
-    return 0;
+    txt->content = NULL;
+    txt->ptrs = NULL;
+    txt->nChar = 0xFFFFFFFF;
+    txt->nLine = 0xFFFFFFFF;
+    txt->maxLine = 0xFFFFFFFF;
 }

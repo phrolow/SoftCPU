@@ -12,25 +12,13 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    if(!checkfile(argv[1], INEXTENSION)) {
-        printf("Invalid input file");
-
-        return 1;
-    }
-
-    if(!checkfile(argv[2], OUTEXTENSION)) {
-        printf("Invalid output file");
-
-        return 1;
-    } 
-
     struct Code code = { NULL, 0 };
     struct text prog = { NULL, NULL, 0, 0, 0 };
 
     prog = textFromFile(argv[1]);
 
     if(compile(&prog, &code) || compile(&prog, &code)) {
-        printf("ТЫ ЧЕ ДУРАК БЛЯТЬ!?");
+        printf("Lmfao guy\n");
 
         return 1;
     }
@@ -40,6 +28,9 @@ int main(int argc, char *argv[]) {
     printf("Alright, yeah!");
 
     ON_DEBUG_MODE(fclose(logfile));
+
+    txtDtor(&prog);
+    free(code.bin);
     
     return 0;
 }
